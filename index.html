@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChemCraft</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="top-bar">
+      <div class="title">ChemCraft</div>
+      <div class="progress-wrap">
+        <div class="level-label">Level <span id="level-label">1</span> · <span id="level-name">Beginner</span></div>
+        <div class="xp-bar">
+          <div class="xp-fill" id="xp-fill"></div>
+        </div>
+        <div class="xp-numeric" id="xp-numeric">0 XP</div>
+      </div>
+      <div class="controls">
+        <label class="toggle">
+          <input type="checkbox" id="heat-toggle" disabled>
+          <span class="slider">Heat</span>
+        </label>
+        <button class="reset-btn" id="reset-btn">Reset</button>
+      </div>
+    </header>
+    <main class="panels">
+      <section class="panel" id="inventory-panel">
+        <div class="panel-head">Inventory</div>
+        <div class="panel-body" id="inventory-list"></div>
+      </section>
+      <section class="panel" id="craft-panel">
+        <div class="panel-head">Craft Area</div>
+        <div class="panel-body craft-zone">
+          <div class="craft-info" id="craft-info">Drag one tile onto another to react.</div>
+          <div class="last-result" id="last-result"></div>
+        </div>
+      </section>
+      <section class="panel" id="discoveries-panel">
+        <div class="panel-head">Discoveries</div>
+        <div class="panel-body discoveries" id="discoveries-list"></div>
+      </section>
+    </main>
+  </div>
+  <div id="toast-container"></div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

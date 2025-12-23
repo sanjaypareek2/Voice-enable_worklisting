@@ -1,0 +1,329 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+:root {
+  --bg: #0f1116;
+  --panel: rgba(28, 31, 40, 0.8);
+  --text: #e9ecf5;
+  --muted: #9aa4bf;
+  --accent: #70d6ff;
+  --accent-2: #c77dff;
+  --success: #7dd87d;
+  --border: rgba(255, 255, 255, 0.08);
+  --toast: rgba(32, 35, 44, 0.95);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: radial-gradient(circle at 20% 20%, rgba(112, 214, 255, 0.1), transparent 25%),
+              radial-gradient(circle at 80% 0%, rgba(199, 125, 255, 0.12), transparent 28%),
+              var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+.app-shell {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: var(--panel);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  margin-bottom: 16px;
+  gap: 16px;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.progress-wrap {
+  flex: 1;
+}
+
+.level-label {
+  color: var(--muted);
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.xp-bar {
+  width: 100%;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.xp-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  transition: width 0.3s ease;
+}
+
+.xp-numeric {
+  margin-top: 6px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.toggle input {
+  display: none;
+}
+
+.slider {
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.toggle input:checked + .slider {
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  color: #0a0d14;
+  font-weight: 700;
+}
+
+.toggle input:disabled + .slider {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.reset-btn {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: transform 0.15s ease, border-color 0.2s ease;
+}
+
+.reset-btn:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.panels {
+  display: grid;
+  grid-template-columns: 1.1fr 1.2fr 1fr;
+  gap: 16px;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+  min-height: 500px;
+}
+
+.panel-head {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.panel-body {
+  padding: 14px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.inventory-tile {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 10px;
+  cursor: grab;
+  transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.inventory-tile:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+  border-color: rgba(112, 214, 255, 0.5);
+}
+
+.inventory-tile.dragging {
+  opacity: 0.7;
+  box-shadow: 0 0 0 2px rgba(112, 214, 255, 0.4);
+}
+
+.tile-title {
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.tile-meta {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.craft-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 480px;
+  text-align: center;
+}
+
+.craft-info {
+  color: var(--muted);
+}
+
+.last-result {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  min-width: 280px;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--text);
+}
+
+.discoveries .card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 10px;
+  position: relative;
+  overflow: hidden;
+  animation: pop-in 0.35s ease;
+}
+
+.card-title {
+  font-weight: 700;
+}
+
+.card-formula {
+  color: var(--muted);
+  font-size: 13px;
+  margin: 4px 0 8px;
+}
+
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.badge {
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  color: #0a0d14;
+  background: rgba(112, 214, 255, 0.75);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge.muted {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--muted);
+}
+
+.badge.rare {
+  background: linear-gradient(90deg, #f8cdda, #1d2b64);
+  color: #fff;
+}
+
+#toast-container {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 999;
+}
+
+.toast {
+  background: var(--toast);
+  color: var(--text);
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  min-width: 160px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+  font-weight: 600;
+  animation: fade-slide 0.35s ease;
+}
+
+@keyframes fade-slide {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pop-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+}
+
+@media (max-width: 960px) {
+  .panels {
+    grid-template-columns: 1fr;
+  }
+  .panel {
+    min-height: auto;
+  }
+  .craft-zone {
+    min-height: 220px;
+  }
+}
