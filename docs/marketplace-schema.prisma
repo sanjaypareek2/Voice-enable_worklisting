@@ -1,0 +1,208 @@
+// Marketplace schema for Exclusive Warehouse Renting & Land for Warehousing
+// Stack: NestJS + Prisma + PostgreSQL (+ PostGIS via raw SQL for geo indexes)
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  OWNER
+  BROKER
+  TENANT
+  ADMIN
+}
+
+enum ListingType {
+  WAREHOUSE
+  LAND
+}
+
+enum ListingStatus {
+  DRAFT
+  PENDING_REVIEW
+  LIVE
+  ARCHIVED
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  CLOSED
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  DOCUMENT
+}
+
+enum PriceUnit {
+  MONTHLY
+  PER_SQFT
+  PER_ACRE
+}
+
+enum AreaUnit {
+  SQFT
+  ACRE
+  HECTARE
+}
+
+enum WarehouseType {
+  COLD
+  DRY
+  BONDED
+  HAZARDOUS
+  FMCG
+}
+
+model User {
+  id           String        @id @default(uuid())
+  name         String
+  email        String        @unique
+  phone        String?
+  role         Role          @default(OWNER)
+  verified     Boolean       @default(false)
+  kycStatus    String        @default("pending")
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  profile      UserProfile?
+  listings     Listing[]
+  leads        Lead[]
+  views        ListingView[]
+}
+
+model UserProfile {
+  id          String   @id @default(uuid())
+  userId      String   @unique
+  companyName String?
+  avatarUrl   String?
+  address     String?
+  taxId       String?
+  website     String?
+  bio         String?
+
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model Location {
+  id           String   @id @default(uuid())
+  address      String
+  city         String
+  state        String
+  country      String
+  pincode      String?
+  lat          Decimal  @db.Decimal(9, 6)
+  lng          Decimal  @db.Decimal(9, 6)
+  geoHash      String?
+  mapPrecision String?  // ex: "rooftop", "approx"
+
+  listings     Listing[]
+}
+
+model Listing {
+  id           String         @id @default(uuid())
+  ownerId      String
+  listingType  ListingType
+  status       ListingStatus  @default(DRAFT)
+  title        String
+  description  String
+  price        Decimal        @db.Decimal(14, 2)
+  priceUnit    PriceUnit
+  areaValue    Decimal        @db.Decimal(14, 2)
+  areaUnit     AreaUnit
+  featured     Boolean        @default(false)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  owner        User           @relation(fields: [ownerId], references: [id])
+  locationId   String
+  location     Location       @relation(fields: [locationId], references: [id])
+  media        ListingMedia[]
+  amenities    ListingAmenity[]
+  warehouse    WarehouseDetail?
+  land         LandDetail?
+  leads        Lead[]
+  views        ListingView[]
+}
+
+model ListingMedia {
+  id         String    @id @default(uuid())
+  listingId  String
+  mediaType  MediaType
+  url        String
+  sortOrder  Int       @default(0)
+
+  listing    Listing   @relation(fields: [listingId], references: [id])
+}
+
+model ListingAmenity {
+  id         String   @id @default(uuid())
+  listingId  String
+  code       String
+
+  listing    Listing  @relation(fields: [listingId], references: [id])
+}
+
+model WarehouseDetail {
+  id              String        @id @default(uuid())
+  listingId       String        @unique
+  warehouseType   WarehouseType
+  dockCount       Int?
+  ceilingHeight   Decimal?      @db.Decimal(10, 2)
+  powerLoad       String?
+  officeSpace     Boolean       @default(false)
+  fireSafety      Boolean       @default(false)
+  floorStrength   String?
+  rackingAvailable Boolean      @default(false)
+  cctv            Boolean       @default(false)
+  certifications  Json?
+
+  listing         Listing       @relation(fields: [listingId], references: [id])
+}
+
+model LandDetail {
+  id                 String   @id @default(uuid())
+  listingId          String   @unique
+  zoningType         String?
+  landGrade          String?
+  roadConnectivity   String?
+  permittedHeight    String?
+  soilType           String?
+  constructionApproval Boolean @default(false)
+  utilitiesAvailable Json?
+
+  listing            Listing  @relation(fields: [listingId], references: [id])
+}
+
+model Lead {
+  id         String     @id @default(uuid())
+  listingId  String
+  userId     String?
+  name       String
+  phone      String
+  email      String?
+  message    String?
+  status     LeadStatus @default(NEW)
+  createdAt  DateTime   @default(now())
+
+  listing    Listing    @relation(fields: [listingId], references: [id])
+  user       User?      @relation(fields: [userId], references: [id])
+}
+
+model ListingView {
+  id         String   @id @default(uuid())
+  listingId  String
+  userId     String?
+  viewedAt   DateTime @default(now())
+  source     String?
+
+  listing    Listing  @relation(fields: [listingId], references: [id])
+  user       User?    @relation(fields: [userId], references: [id])
+}

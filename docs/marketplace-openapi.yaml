@@ -1,0 +1,307 @@
+openapi: 3.0.3
+info:
+  title: Warehouse & Land Leasing Marketplace API
+  version: 1.0.0
+  description: API spec for a 99acres-style leasing marketplace.
+servers:
+  - url: https://api.example.com
+paths:
+  /auth/register:
+    post:
+      summary: Register a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+  /auth/login:
+    post:
+      summary: Login a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+  /listings:
+    get:
+      summary: List listings with filters
+      parameters:
+        - in: query
+          name: type
+          schema:
+            type: string
+            enum: [warehouse, land]
+        - in: query
+          name: price_min
+          schema:
+            type: number
+        - in: query
+          name: price_max
+          schema:
+            type: number
+        - in: query
+          name: area_min
+          schema:
+            type: number
+        - in: query
+          name: area_max
+          schema:
+            type: number
+        - in: query
+          name: city
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListingListResponse'
+    post:
+      summary: Create a listing
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListingCreateRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Listing'
+  /listings/{id}:
+    get:
+      summary: Get listing details
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Listing'
+    put:
+      summary: Update listing
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListingUpdateRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Listing'
+    delete:
+      summary: Delete listing
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: No Content
+  /listings/{id}/media:
+    post:
+      summary: Upload listing media
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Created
+  /leads:
+    post:
+      summary: Create lead
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LeadCreateRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lead'
+  /admin/listings:
+    get:
+      summary: Admin list listings
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [draft, pending_review, live, archived]
+      responses:
+        '200':
+          description: OK
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    RegisterRequest:
+      type: object
+      required: [name, email, password]
+      properties:
+        name: { type: string }
+        email: { type: string }
+        password: { type: string }
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string }
+        password: { type: string }
+    AuthResponse:
+      type: object
+      properties:
+        token: { type: string }
+        userId: { type: string }
+    ListingCreateRequest:
+      type: object
+      required: [title, description, listingType, price, priceUnit, areaValue, areaUnit, location]
+      properties:
+        title: { type: string }
+        description: { type: string }
+        listingType: { type: string, enum: [warehouse, land] }
+        price: { type: number }
+        priceUnit: { type: string, enum: [monthly, per_sqft, per_acre] }
+        areaValue: { type: number }
+        areaUnit: { type: string, enum: [sqft, acre, hectare] }
+        location:
+          $ref: '#/components/schemas/Location'
+    ListingUpdateRequest:
+      type: object
+      properties:
+        title: { type: string }
+        description: { type: string }
+        price: { type: number }
+        priceUnit: { type: string, enum: [monthly, per_sqft, per_acre] }
+        areaValue: { type: number }
+        areaUnit: { type: string, enum: [sqft, acre, hectare] }
+        status: { type: string, enum: [draft, pending_review, live, archived] }
+    Listing:
+      type: object
+      properties:
+        id: { type: string }
+        title: { type: string }
+        description: { type: string }
+        listingType: { type: string }
+        price: { type: number }
+        priceUnit: { type: string }
+        areaValue: { type: number }
+        areaUnit: { type: string }
+        status: { type: string }
+        featured: { type: boolean }
+        location:
+          $ref: '#/components/schemas/Location'
+        media:
+          type: array
+          items: { $ref: '#/components/schemas/ListingMedia' }
+    ListingMedia:
+      type: object
+      properties:
+        id: { type: string }
+        url: { type: string }
+        mediaType: { type: string, enum: [image, video, document] }
+    ListingListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/Listing' }
+        total: { type: integer }
+    LeadCreateRequest:
+      type: object
+      required: [listingId, name, phone]
+      properties:
+        listingId: { type: string }
+        name: { type: string }
+        phone: { type: string }
+        email: { type: string }
+        message: { type: string }
+    Lead:
+      type: object
+      properties:
+        id: { type: string }
+        listingId: { type: string }
+        name: { type: string }
+        phone: { type: string }
+        email: { type: string }
+        message: { type: string }
+    Location:
+      type: object
+      required: [address, city, state, country, lat, lng]
+      properties:
+        address: { type: string }
+        city: { type: string }
+        state: { type: string }
+        country: { type: string }
+        pincode: { type: string }
+        lat: { type: number }
+        lng: { type: number }
